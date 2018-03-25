@@ -16,3 +16,5 @@
 ![WPFSerpent2](/Images/2018-03-25_000219.png?raw=true "WPFSerpent2")
 
 Be aware that any updates after 18-05-2015 were made strictly to fix minor bugs and maintain compatibility with current systems (no core changes since then).
+
+Download: [WPF Serpent](https://github.com/rvnlord/Serpent/releases/download/v1.47/WPFSerpent.exe) 
