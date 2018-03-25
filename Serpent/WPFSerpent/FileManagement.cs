@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace WpfDemo
+namespace WPFSerpent
 {
     public class FileManagement
     {

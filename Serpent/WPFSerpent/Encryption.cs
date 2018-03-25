@@ -1,21 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Numerics;
 using System.IO;
-using System.Windows;
-using System.ComponentModel;
-using System.Data;
-using System.Globalization;
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Windows;
+using WpfDemo;
 
-namespace WpfDemo
+namespace WPFSerpent
 {
     public class SerpentCipher
     {

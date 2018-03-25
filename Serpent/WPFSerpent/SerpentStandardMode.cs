@@ -1,10 +1,6 @@
-﻿#region
+﻿using System;
 
-using System;
-
-#endregion
-
-namespace WpfDemo
+namespace WPFSerpent
 {
     public class SerpentStandardMode : SerpentAlgorithm
     {

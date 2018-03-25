@@ -7,12 +7,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace WpfDemo
+namespace WPFSerpent
 {
     public class Validation
     {
-        private readonly SerpentCipher serpent = new SerpentCipher { AlphabetLength = 256 };
-
         public bool ValidateForm(Control FormToValidate, ActionType Operation, out List<object> ValidationResults)
         {
             var strKey = ((TextBox) FormToValidate.FindName("txtKey"))?.Text;

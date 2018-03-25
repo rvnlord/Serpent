@@ -1,4 +1,4 @@
-﻿namespace WpfDemo
+﻿namespace WPFSerpent
 {
     public class SerpentBitSliceMode : SerpentAlgorithm
     {

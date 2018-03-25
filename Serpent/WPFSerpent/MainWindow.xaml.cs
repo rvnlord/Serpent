@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using Microsoft.Win32;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+using Microsoft.Win32;
 
-namespace WpfDemo
+namespace WPFSerpent
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public static readonly string ProgramVersion = "(v1.47 - 24-03-2018)";
         private readonly Stopwatch sw = new Stopwatch();
