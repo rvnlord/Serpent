@@ -5,9 +5,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
-using WpfDemo;
 
-namespace WPFSerpent
+namespace WPFSerpent.Source.Models
 {
     public class SerpentCipher
     {
@@ -36,7 +35,7 @@ namespace WPFSerpent
                 sa = new SerpentBitSliceMode();
             else          
             {
-                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -80,7 +79,7 @@ namespace WPFSerpent
 
             if (errorCode == ErrorCode.ExpandFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -101,7 +100,7 @@ namespace WPFSerpent
 
                     if (BlockSize < infoBytes.Count - saltBytes.Length)
                     {
-                        MessageBox.Show("Rozszerzenie pliku jest zbyt długie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Rozszerzenie pliku jest zbyt długie.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
 
@@ -113,7 +112,7 @@ namespace WPFSerpent
 
                     if (errorCode == ErrorCode.ExpandFileFailed)
                     {
-                        MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
 
@@ -132,7 +131,7 @@ namespace WPFSerpent
 
                 if (errorCode == ErrorCode.GetFileFailed)
                 {
-                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
@@ -159,7 +158,7 @@ namespace WPFSerpent
                     }
                     else
                     {
-                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                 }
@@ -170,7 +169,7 @@ namespace WPFSerpent
 
                 if (errorCode == ErrorCode.SaveFileFailed) // w razie błędu szyfrowanie nie powiodło się
                 {
-                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
@@ -185,7 +184,7 @@ namespace WPFSerpent
 
             if (errorCode == ErrorCode.DeletingTempFileFailed) // w razie błędu szyfrowanie nie powiodło się
             {
-                MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -197,7 +196,7 @@ namespace WPFSerpent
 
             if (errorCode == ErrorCode.ExpandFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -222,7 +221,7 @@ namespace WPFSerpent
                 sa = new SerpentBitSliceMode();
             else
             {
-                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -246,7 +245,7 @@ namespace WPFSerpent
 
             if (errorCode == ErrorCode.GetFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostac wczytany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -269,7 +268,7 @@ namespace WPFSerpent
 
             if (!areRoundsFromPtControlSumParsable || readRoundsFromPtControlSum > 64)
             {
-                MessageBox.Show("Plik nie jest zaszyfrowany lub jest zaszyfrowany innym algorytmem.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik nie jest zaszyfrowany lub jest zaszyfrowany innym algorytmem.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             else if (readRoundsFromPtControlSum != Rounds)
@@ -302,7 +301,7 @@ namespace WPFSerpent
 
             if (errorCode == ErrorCode.ShiftFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostac zmodyfikowany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Plik nie mógł zostac zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -312,7 +311,7 @@ namespace WPFSerpent
 
                 if (errorCode == ErrorCode.GetFileFailed)
                 {
-                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
@@ -338,7 +337,7 @@ namespace WPFSerpent
                     }
                     else
                     {
-                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                 }
@@ -394,7 +393,7 @@ namespace WPFSerpent
                         if (errorCode == ErrorCode.DeletingTempFileFailed)
                             MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                        MessageBox.Show("Klucz jest nieprawidłowy. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Klucz jest nieprawidłowy. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                         return false;
                     }
@@ -409,7 +408,7 @@ namespace WPFSerpent
 
                 if (errorCode == ErrorCode.SaveFileFailed) // w razie błędu szyfrowanie nie powiodło się
                 {
-                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 

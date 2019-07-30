@@ -1,5 +1,16 @@
-﻿<ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                    xmlns:shared="http://metro.mahapps.com/winfx/xaml/shared"
+                    xmlns:vsm ="clr-namespace:System.Windows;assembly=PresentationFramework"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!--#region Window-->
+
+    <SolidColorBrush x:Key="MouseOverTitleBarBrush" Color="#FF000040" />
+    <SolidColorBrush x:Key="DefaultWindowBrush" Color="#FF1E1E1E" />
+    <SolidColorBrush x:Key="DefaultForegroundBrush" Color="#FFBABABA" />
 
     <LinearGradientBrush x:Key="pbBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#323232" Offset="0.0" />
@@ -11,14 +22,301 @@
         <GradientStop Color="Black" Offset="1.0" />
     </LinearGradientBrush>
 
-    <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
+    <Style x:Key="MyCleanWindowStyle" 
+           TargetType="{x:Type mah:MetroWindow}" 
+           BasedOn="{StaticResource CleanWindowStyleKey}">
+        <Setter Property="TitleCharacterCasing" Value="Normal"/>
+        <Setter Property="IconEdgeMode" Value="Aliased"/>
+        <Setter Property="TitleAlignment" Value="-10,0,0,0"/>
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="WindowTitleBrush" Value="{StaticResource MouseOverTitleBarBrush}"></Setter>
+        <Setter Property="Foreground" Value="White"></Setter>
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region DataGrid-->
+
+    <LinearGradientBrush x:Key="HeaderRowBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FF000096" Offset="0.0" />
+        <GradientStop Color="Black" Offset="1.0" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="RowBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FF000040" Offset="0.0" />
+        <GradientStop Color="Black" Offset="1.0" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="BorderBrush" Color="#FF000096" />
+    <LinearGradientBrush x:Key="RowSelectedBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FF909000" Offset="0.0" />
+        <GradientStop Color="Black" Offset="1.0" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="RowMouseOverBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FF606000" Offset="0.0" />
+        <GradientStop Color="Black" Offset="1.0" />
+    </LinearGradientBrush>
+
+    <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+        <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+        <Setter Property="Background" Value="{StaticResource HeaderRowBrush}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="10,0,4,0" />
+        <Setter Property="BorderThickness" Value="0,0,0,0" />
+        <Setter Property="Height" Value="25" />
+        <Setter Property="MaxHeight" Value="25" />
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True" />
+                    <Condition Property="SortDirection" Value="{x:Null}" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
+            </MultiTrigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource WhiteBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="MyRowStyle" BasedOn="{StaticResource MetroDataGridRow}" TargetType="{x:Type DataGridRow}">
+        <Style.Triggers>
+            <!--  IsSelected  -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="IsSelected" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource MetroDataGrid.HighlightTextBrush}" />
+            </MultiTrigger>
+
+            <!--  IsSelected and Selector.IsSelectionActive (Inactive Selection) -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="IsSelected" Value="True" />
+                    <Condition Property="Selector.IsSelectionActive" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource MetroDataGrid.InactiveSelectionHighlightTextBrush}" />
+            </MultiTrigger>
+
+            <!--  IsMouseOver  -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="IsMouseOver" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RowMouseOverBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource RowMouseOverBrush}" />
+            </MultiTrigger>
+
+            <!--  IsEnabled  -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="IsEnabled" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
+            </MultiTrigger>
+
+            <!--  IsEnabled and IsSelected (Disabled Highlight)  -->
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="IsEnabled" Value="False" />
+                    <Condition Property="IsSelected" Value="True" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource RowSelectedBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource MetroDataGrid.HighlightTextBrush}" />
+            </MultiTrigger>
+
+        </Style.Triggers>
+    </Style>
+
+    <Style BasedOn="{StaticResource MetroDataGrid}" TargetType="{x:Type DataGrid}">
+        <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="RowHeight" Value="25" />
+        <Setter Property="RowBackground" Value="{StaticResource RowBrush}" />
+        <Setter Property="RowStyle" Value="{StaticResource MyRowStyle}" />
+        <Setter Property="DataGridTextColumn.HeaderStyle" Value="{StaticResource MyDataGridColumnHeaderStyle}"></Setter>
+    </Style>
+
+    <Style x:Key="CenterAlignedCellStyle" BasedOn="{StaticResource MetroDataGridCell}" TargetType="{x:Type DataGridCell}">
+        <Style.Setters>
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="TextBlock.TextAlignment" Value="Center" />
+            <Setter Property="BorderThickness" Value="0,0,1,0" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="Padding" Value="0,0,0,0" />
+            <Setter Property="Margin" Value="0,0,0,0" />
+        </Style.Setters>
+    </Style>
+
+    <Style BasedOn="{StaticResource CenterAlignedCellStyle}" 
+           TargetType="{x:Type DataGridCell}">
+    </Style>
+
+    <Style x:Key="LeftAlignedCellStyle" BasedOn="{StaticResource CenterAlignedCellStyle}" 
+           TargetType="{x:Type DataGridCell}">
+        <Style.Setters>
+            <Setter Property="TextBlock.TextAlignment" Value="Left" />
+            <Setter Property="Padding" Value="5,0,0,0" />
+        </Style.Setters>
+    </Style>
+
+    <Style x:Key="RightAlignedCellStyle" BasedOn="{StaticResource CenterAlignedCellStyle}" 
+           TargetType="{x:Type DataGridCell}">
+        <Style.Setters>
+            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+            <Setter Property="Padding" Value="0,0,5,0" />
+        </Style.Setters>
+    </Style>
+
+    <Style x:Key="IconCellStyle" TargetType="iconPacks:PackIconMaterial">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,0" />
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region Label-->
+
+    <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type Label}}">
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="White" />
     </Style>
+
+    <!--#endregion-->
+
+    <!--#region Contextmenu (Default Unused)-->
+
+    <ContextMenu x:Key="emptyContextMenu" Width="0" Height="0" Visibility="Collapsed">
+    </ContextMenu>
+
+    <!--#endregion-->
+
+    <!--#region TextBox-->
+
+    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource TextBoxStyle}">
+        <Setter Property="Padding" Value="3,5" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="AcceptsReturn" Value="False" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="ContextMenu" Value="{StaticResource emptyContextMenu}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid x:Name="RootElement" SnapsToDevicePixels="True">
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="Border">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TextBoxHoverBorderBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Background" Storyboard.TargetName="Border">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource TextBoxHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Disabled">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="ReadOnly">
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisualElement" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unfocused">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisualElement" />
+                                    </Storyboard>
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="ValidationStates">
+                                <vsm:VisualState x:Name="Valid" />
+                                <vsm:VisualState x:Name="InvalidUnfocused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="ValidationErrorElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="InvalidFocused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="ValidationErrorElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <system:Boolean>True</system:Boolean>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Opacity="1">
+                            <Grid>
+                                <Border x:Name="ReadOnlyVisualElement" Background="{StaticResource TextBoxReadOnlyBackgroundBrush}" Opacity="0" />
+                                <ScrollViewer x:Name="PART_ContentHost" BorderThickness="0" IsTabStop="False" Padding="{TemplateBinding Padding}" />
+                            </Grid>
+                        </Border>
+                        <Border x:Name="DisabledVisualElement" BorderBrush="{StaticResource DisabledVisualElement}" BorderThickness="{TemplateBinding BorderThickness}" Background="{StaticResource DisabledVisualElement}" IsHitTestVisible="False" Opacity="0" />
+                        <Border x:Name="FocusVisualElement" BorderBrush="{StaticResource TextBoxFocusedBrush}" BorderThickness="{TemplateBinding BorderThickness}" IsHitTestVisible="False" Opacity="0" />
+                        <Border x:Name="ValidationErrorElement" BorderBrush="{StaticResource ValidationErrorElement}" BorderThickness="{TemplateBinding BorderThickness}" Visibility="Collapsed">
+                            <ToolTipService.ToolTip>
+                                <ToolTip x:Name="validationTooltip" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Template="{StaticResource TextBoxValidationToolTipTemplate}"/>
+                            </ToolTipService.ToolTip>
+                            <Grid Background="Transparent" HorizontalAlignment="Right" Height="12" Margin="1,-4,-4,0" VerticalAlignment="Top" Width="12">
+                                <Path Data="M 1,0 L6,0 A 2,2 90 0 1 8,2 L8,7 z" Fill="{StaticResource ValidationErrorElement}" Margin="1,3,0,0" />
+                                <Path Data="M 0,0 L2,0 L 8,6 L8,8" Fill="{StaticResource LightForegroundBrush}" Margin="1,3,0,0" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region RadioButton-->
 
     <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource {x:Type RadioButton}}">
         <Setter Property="Padding" Value="6,0,0,0" />
@@ -26,77 +324,82 @@
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="MinHeight" Value="0" />
     </Style>
 
-    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+    <!--#endregion-->
+
+    <!--#region CheckBox-->
+
+    <Style TargetType="{x:Type CheckBox}">
         <Setter Property="Padding" Value="6,0,0,0" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Top" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource DefaultForegroundBrush}"></Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
                     <Grid VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal" />
-                                <VisualState x:Name="MouseOver">
+                        <vsm:VisualStateManager.VisualStateGroups>
+                            <vsm:VisualStateGroup x:Name="CommonStates">
+                                <vsm:VisualState x:Name="Normal" />
+                                <vsm:VisualState x:Name="MouseOver">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="hover" />
                                     </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Pressed">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="pressed" />
                                     </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Disabled">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To=".55" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="contentPresenter" />
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="disabled" />
                                     </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="CheckStates">
-                                <VisualState x:Name="Checked">
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="CheckStates">
+                                <vsm:VisualState x:Name="Checked">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="checkBox" />
                                     </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Unchecked" />
-                                <VisualState x:Name="Indeterminate">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unchecked" />
+                                <vsm:VisualState x:Name="Indeterminate">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="IndeterminateCheck" />
                                     </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
-                                <VisualState x:Name="Focused">
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="FocusStates">
+                                <vsm:VisualState x:Name="Focused">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="focused" />
                                     </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Unfocused" />
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="ValidationStates">
-                                <VisualState x:Name="Valid" />
-                                <VisualState x:Name="InvalidUnfocused">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="Unfocused" />
+                            </vsm:VisualStateGroup>
+                            <vsm:VisualStateGroup x:Name="ValidationStates">
+                                <vsm:VisualState x:Name="Valid" />
+                                <vsm:VisualState x:Name="InvalidUnfocused">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="invalidUnfocused" />
                                     </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="InvalidFocused">
+                                </vsm:VisualState>
+                                <vsm:VisualState x:Name="InvalidFocused">
                                     <Storyboard>
                                         <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="invalidFocused" />
                                     </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+                                </vsm:VisualState>
+                            </vsm:VisualStateGroup>
+                        </vsm:VisualStateManager.VisualStateGroups>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="18" />
                             <ColumnDefinition Width="*" />
@@ -116,6 +419,199 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region Button-->
+
+    <Style BasedOn="{StaticResource ButtonStyle}" TargetType="{x:Type Button}">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="MyMahButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="{x:Type ButtonBase}">
+        <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="MyMahAccentedButtonStyle" BasedOn="{StaticResource AccentedSquareButtonStyle}" TargetType="{x:Type ButtonBase}">
+        <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="MyClearButtonStyle" BasedOn="{StaticResource ChromelessButtonStyle}" TargetType="{x:Type Button}">
+        <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region ComboBox-->
+
+    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+        <Setter Property="Width" Value="120"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalAlignment" Value="Top"></Setter>
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style TargetType="{x:Type ComboBoxItem}" BasedOn="{StaticResource {x:Type ComboBoxItem}}">
+        <Setter Property="Padding" Value="3,3" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region ListBox-->
+
+    <Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
+        <Setter Property="Width" Value="120"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+        <Setter Property="VerticalAlignment" Value="Top"></Setter>
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+        <Setter Property="Padding" Value="3,3" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region MahTabItem-->
+
+    <Style TargetType="{x:Type mah:MetroTabItem}">
+        <Setter
+            Property="Template">
+            <Setter.Value>
+                <ControlTemplate
+                    TargetType="{x:Type mah:MetroTabItem}">
+                    <Border
+                        x:Name="Spacer"
+                        Width="Auto"
+                        Height="Auto"
+                        Padding="0 0 0 0"
+                        Margin="0 0 0 0"
+                        BorderBrush="Transparent"
+                        BorderThickness="0">
+                        <Border
+                            x:Name="Border"
+                            BorderThickness="0,0,0,0"
+                            CornerRadius="0,0,0,0"
+                            Cursor="Hand"
+                            VerticalAlignment="Top">
+                            <ContentPresenter
+                                x:Name="ContentSite"
+                                TextElement.FontSize="14pt"
+                                TextElement.FontFamily="Arial"
+                                TextElement.Foreground="White"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Left"
+                                ContentSource="Header"
+                                Margin="0,0,0,0"
+                                Width="Auto"
+                                Height="Auto" 
+                                Cursor="Arrow" />
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--#endregion-->
+
+    <!--#region MahTile-->
+
+    <Style x:Key="BaseTile" TargetType="{x:Type mah:Tile}">
+        <Setter Property="Background" Value="{DynamicResource AccentColorBrush}" />
+        <Setter Property="mah:ControlsHelper.MouseOverBorderBrush" Value="{x:Null}" />
+        <!-- xaml serializer nie poradzi sobie z helperem -->
+        <Setter Property="CountFontSize" Value="28" />
+        <Setter Property="Foreground" Value="{DynamicResource IdealForegroundColorBrush}" />
+        <Setter Property="Margin" Value="0,0,5,5" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="TitleFontSize" Value="16" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="Width" Value="50" />
+        <Setter Property="Padding" Value="0"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="mah:Tile">
+                    <Grid>
+                        <Border x:Name="PART_Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                            <Grid>
+                                <StackPanel HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            Orientation="Horizontal">
+                                    <ContentPresenter RecognizesAccessKey="True" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               FontSize="{TemplateBinding CountFontSize}"
+                                               Text="{TemplateBinding Count}" />
+                                </StackPanel>
+                                <Label HorizontalAlignment="{TemplateBinding HorizontalTitleAlignment}"
+                                       VerticalAlignment="{TemplateBinding VerticalTitleAlignment}"
+                                       Foreground="{TemplateBinding Foreground}">
+                                    <AccessText Margin="3"
+                                                FontSize="{TemplateBinding TitleFontSize}"
+                                                Foreground="{TemplateBinding Foreground}"
+                                                Text="{TemplateBinding Title}"
+                                                TextWrapping="Wrap" />
+                                </Label>
+                            </Grid>
+                        </Border>
+                        <Border x:Name="PART_HoverBorder"
+                                BorderBrush="{TemplateBinding mah:ControlsHelper.MouseOverBorderBrush}"
+                                BorderThickness="2"
+                                Opacity="0"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=(mah:ControlsHelper.MouseOverBorderBrush), Mode=OneWay, Converter={x:Static shared:IsNullConverter.Instance}}" Value="False" />
+                                <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver, Mode=OneWay}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="PART_HoverBorder" Property="Opacity" Value="0.6" />
+                        </MultiDataTrigger>
+                        <Trigger Property="Button.IsPressed" Value="True">
+                            <Setter Property="RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform CenterX="0.5"
+                                                    CenterY="0.5"
+                                                    ScaleX="0.98"
+                                                    ScaleY="0.98" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.3" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GridStyle" TargetType="{x:Type Grid}">
+        <Setter Property="Margin" Value="0,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
 
 </ResourceDictionary>

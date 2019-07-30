@@ -1,29 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using WPFSerpent.Source.Common.Extensions;
+using WPFSerpent.Source.Models;
+using Button = System.Windows.Controls.Button;
+using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
+using DataFormats = System.Windows.DataFormats;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using Panel = System.Windows.Controls.Panel;
+using RadioButton = System.Windows.Controls.RadioButton;
+using TextBox = System.Windows.Controls.TextBox;
+using Validation = WPFSerpent.Source.Models.Validation;
 
-namespace WPFSerpent
+namespace WPFSerpent.Source.Windows
 {
     public partial class MainWindow
     {
-        public static readonly string ProgramVersion = "(v1.47 - 24-03-2018)";
+        private NotifyIcon _notifyIcon;
+
         private readonly Stopwatch sw = new Stopwatch();
 
         private SerpentCipher serpent = new SerpentCipher(); // inicjalizuję obiekt klasy szyfrującej
         private readonly BackgroundWorker bgwEncrypt = new BackgroundWorker(); // inicjalizuję klasy obsługujące szyfreowanie asynchronicznie
         private readonly BackgroundWorker bgwDecrypt = new BackgroundWorker();
-        private BackgroundWorker bgwBreakEncryption = new BackgroundWorker();
 
         private bool KeyChanged { get; set; } // deklaruję właściwości
         private bool RoundsChanged { get; set; }
-
-        private double CurrWidth { get; set; }
-        private double CurrHeight { get; set; }
 
         public MainWindow()
         {
@@ -33,6 +48,17 @@ namespace WPFSerpent
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            var iconHandle = Properties.Resources.NotifyIcon.GetHicon();
+            var icon = System.Drawing.Icon.FromHandle(iconHandle);
+
+            _notifyIcon = new NotifyIcon
+            {
+                BalloonTipTitle = lblWindowTitle.Content.ToString(),
+                BalloonTipText = @"is hidden here",
+                Icon = icon
+            };
+            _notifyIcon.Click += notifyIcon_Click;
+
             serpent.AlphabetLength = 256; // uzupełniam zmienne klasy szyfrującej
             serpent.EncryptionProgressChanged += MainWindow_EncryptionProgressChanged;
             pbStatus.Visibility = Visibility.Collapsed;
@@ -65,23 +91,19 @@ namespace WPFSerpent
             rbBitSliceMode.IsChecked = true;
 
             lblKeyValidation.Content = string.Empty;
-
-            Title += " " + ProgramVersion;
         }
 
         private void btnEncrypt_Click(object sender, RoutedEventArgs e)
         {
             var vd = new Validation();
-            List<object> validationResults;
             var algMode = rbStandardMode.IsChecked == true ? Mode.Standard : Mode.BitSlice;
             var encrMode = rbECBEncrMode.IsChecked == true ? EncryptionMode.ECB : EncryptionMode.CBC;
-            var keyMode = rbKeyBytes.IsChecked == true ? KeyMode.Bytes : KeyMode.Chars;
 
-            if (vd.ValidateForm(this, ActionType.Encryption, out validationResults))
+            if (vd.ValidateForm(this, ActionType.Encryption, out var validationResults))
             {
                 var key = (byte[])validationResults[0];
                 var rounds = (int)validationResults[1];
-                lblOperation.Content = "Trwa Szyfrowanie...";
+                lblOperation.Content = "Encrypting...";
 
                 ModifyGuiEventHandlers(OperationStatus.Start);
                 ModifyGuiVisibility(OperationStatus.Start, sender);
@@ -107,24 +129,22 @@ namespace WPFSerpent
         private void bgwEncrypt_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             sw.Stop();
-            UpdateGuiOnCompletion($"Plik został poprawnie zaszyfrowany (Czas: {sw.Elapsed}). ", sender, e, ActionType.Encryption); // przekazuję wiadomość i wynik operacji szyfrowania do metody aktualizującej interfejs użytkownika.
+            UpdateGuiOnCompletion($"File has been correctly Encrypted (Time: {sw.Elapsed}). ", sender, e, ActionType.Encryption); // przekazuję wiadomość i wynik operacji szyfrowania do metody aktualizującej interfejs użytkownika.
             sw.Reset();
         }
 
         private void btnDecrypt_Click(object sender, RoutedEventArgs e)
         {
             var vd = new Validation();
-            List<object> validationResults;
             var algMode = rbStandardMode.IsChecked == true ? Mode.Standard : Mode.BitSlice;
             var encrMode = rbECBEncrMode.IsChecked == true ? EncryptionMode.ECB : EncryptionMode.CBC;
-            var keyMode = rbKeyBytes.IsChecked == true ? KeyMode.Bytes : KeyMode.Chars;
 
-            if (vd.ValidateForm(this, ActionType.Decryption, out validationResults))
+            if (vd.ValidateForm(this, ActionType.Decryption, out var validationResults))
             {
                 var key = (byte[])validationResults[0];
                 var rounds = (int)validationResults[1];
 
-                lblOperation.Content = "Trwa Deszyfrowanie...";
+                lblOperation.Content = "Decrypting...";
 
                 ModifyGuiEventHandlers(OperationStatus.Start);
                 ModifyGuiVisibility(OperationStatus.Start, sender);
@@ -150,7 +170,7 @@ namespace WPFSerpent
         private void bgwDecrypt_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             sw.Stop();
-            UpdateGuiOnCompletion($"Plik został poprawnie odszyfrowany. (Czas: {sw.Elapsed}). ", sender, e, ActionType.Decryption); // przekazuję wiadomość i wynik operacji deszyfrowania do metody aktualizującej interfejs użytkownika.
+            UpdateGuiOnCompletion($"FIle has been correctly Decrypted (Time: {sw.Elapsed}). ", sender, e, ActionType.Decryption); // przekazuję wiadomość i wynik operacji deszyfrowania do metody aktualizującej interfejs użytkownika.
             sw.Reset();
         }
 
@@ -159,7 +179,7 @@ namespace WPFSerpent
             var opResult = (bool)e.Result; 
 
             if (opResult)
-                MessageBox.Show(Message, "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Message, "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
             ModifyGuiVisibility(OperationStatus.End, sender);
             ModifyGuiEventHandlers(OperationStatus.End);
@@ -183,24 +203,24 @@ namespace WPFSerpent
 
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
-            txtKey.Text = "klucz...";
+            txtKey.Text = "key...";
             txtKey.GotFocus += txtKey_GotFocus;
             KeyChanged = false;
             txtKey.FontStyle = FontStyles.Italic;
 
             if (rbBitSliceMode.IsChecked == false)
-                txtRounds.Text = "rundy...";
+                txtRounds.Text = "rounds...";
 
             txtRounds.GotFocus += txtRounds_GotFocus;
             RoundsChanged = false;
             txtRounds.FontStyle = FontStyles.Italic;
 
-            txtSourceFile.Text = "Wybierz lub przeciągnij plik...";
+            txtSourceFile.Text = "Select or drop a file...";
         }
 
         private void txtKey_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(txtKey.Text) || txtKey.Text == "klucz...")
+            if (string.IsNullOrEmpty(txtKey.Text) || txtKey.Text == "key...")
             {
                 FormatTextBoxOnFocus((TextBox)sender);
                 ((TextBox)sender).GotFocus -= txtKey_GotFocus;
@@ -208,7 +228,7 @@ namespace WPFSerpent
             }
             else
             {
-                var result = MessageBox.Show("Czy na pewno chcesz wyczyścić klucz?. ", "Ostrzeżenie", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                var result = MessageBox.Show("Are you sure you want to clear the current key?. ", "Warning", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
                 {
@@ -339,7 +359,7 @@ namespace WPFSerpent
             {
                 if (!string.IsNullOrEmpty(txtKey.Text))
                 {
-                    var result = MessageBox.Show("Obecny klucz zostanie usunięty, czy na pewno chcesz kontynuować? ", "Błąd", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    var result = MessageBox.Show("Current key will be lost, are you sure you want to continue? ", "Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                     if (result == MessageBoxResult.Yes)
                         txtKey.Text = string.Empty;
@@ -357,7 +377,7 @@ namespace WPFSerpent
 
         private void rbKeyBytes_Checked(object sender, RoutedEventArgs e)
         {
-            var extension = System.IO.Path.GetExtension(txtSourceFile.Text);
+            var extension = Path.GetExtension(txtSourceFile.Text);
 
             if (extension != ".serpent")
             {
@@ -369,7 +389,7 @@ namespace WPFSerpent
             {
                 if (!string.IsNullOrEmpty(txtKey.Text))
                 {
-                    var result = MessageBox.Show("Obecny klucz zostanie usunięty, czy na pewno chcesz kontynuować?. ", "Błąd", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    var result = MessageBox.Show("Current key will be lost, are you sure you want to continue? ", "Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                     if (result == MessageBoxResult.Yes)
                     {
@@ -411,7 +431,7 @@ namespace WPFSerpent
                 var key = (byte[])validationResults[0];
 
                 lblKeyValidation.Foreground = vdResult ? green : red;
-                lblKeyValidation.Content = string.Format("Klucz: {0} bit{3} ({1} bajt{4}) ({2})", key.Length * 8, key.Length, vdResult ? "Poprawny" : "Niepoprawny", vd.GetWordEnding(key.Length * 8), vd.GetWordEnding(key.Length));
+                lblKeyValidation.Content = $"Key: {key.Length * 8} bit{vd.GetWordEnding(key.Length * 8)} ({key.Length} byte{vd.GetWordEnding(key.Length)}) ({(vdResult ? "Correct" : "Incorrect")})";
             }
         }
 
@@ -506,13 +526,120 @@ namespace WPFSerpent
             var key = serpent.RandomizeKey();
             UpdateGuiWithRandomizedKeys(key);
         }
-    }
 
-    public static partial class ExtensionMethods
-    {
-        public static void PerformClick(this Button btn)
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e) { }
+
+        private void btnMinimizeToTray_Click(object sender, RoutedEventArgs e)
         {
-            btn.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
+            WindowState = WindowState.Minimized;
+            ShowInTaskbar = false;
+            _notifyIcon.Visible = true;
+            _notifyIcon.ShowBalloonTip(1500);
+        }
+
+        private void btnMinimizeToTray_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = new SolidColorBrush(Color.FromRgb(0, 0, 180));
+        }
+
+        private void btnMinimizeToTray_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = Brushes.Transparent;
+        }
+
+        private void btnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void btnMinimize_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = new SolidColorBrush(Color.FromRgb(76, 76, 76));
+        }
+
+        private void btnMinimize_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = Brushes.Transparent;
+        }
+
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void btnClose_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = new SolidColorBrush(Color.FromRgb(76, 76, 76));
+            ((Button)sender).Foreground = Brushes.Black;
+        }
+
+        private void btnClose_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Button)sender).Background = Brushes.Transparent;
+            ((Button)sender).Foreground = Brushes.White;
+        }
+
+        private bool _restoreForDragMove;
+
+        private void gridTitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                if (ResizeMode != ResizeMode.CanResize && ResizeMode != ResizeMode.CanResizeWithGrip)
+                    return;
+
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            }
+            else
+            {
+                _restoreForDragMove = WindowState == WindowState.Maximized;
+                DragMove();
+            }
+        }
+
+        private void gridTitleBar_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_restoreForDragMove && e.LeftButton == MouseButtonState.Pressed)
+            {
+                _restoreForDragMove = false;
+
+                var wndMousePos = e.MouseDevice.GetPosition(this);
+                var screenMousePos = this.WindowPointToScreen(wndMousePos);
+
+                Left = screenMousePos.X - Width / (ActualWidth / wndMousePos.X);
+                Top = screenMousePos.Y - Height / (ActualHeight / wndMousePos.Y);
+
+                WindowState = WindowState.Normal;
+
+                DragMove();
+            }
+        }
+
+        private void gridTitleBar_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _restoreForDragMove = false;
+        }
+
+        private void gridTitleBar_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Grid)sender).Highlight(((SolidColorBrush)FindResource("MouseOverTitleBarBrush")).Color);
+        }
+
+        private void gridTitleBar_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Grid)sender).Highlight(((SolidColorBrush)FindResource("DefaultWindowBrush")).Color);
+        }
+
+        private void notifyIcon_Click(object sender, EventArgs e)
+        {
+            ShowInTaskbar = true;
+            _notifyIcon.Visible = false;
+            WindowState = WindowState.Normal;
+
+            if (IsVisible)
+                Activate();
+            else
+                Show();
         }
     }
 

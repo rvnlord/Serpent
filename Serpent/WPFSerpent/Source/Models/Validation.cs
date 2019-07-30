@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace WPFSerpent
+namespace WPFSerpent.Source.Models
 {
     public class Validation
     {
@@ -37,20 +37,20 @@ namespace WPFSerpent
                                         }
                                         else
                                         {
-                                            MessageBox.Show("To nie jest poprawny format klucza. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            MessageBox.Show("This is not a correct key format. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
                                     else
-                                        MessageBox.Show("Klucz jest pusty. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        MessageBox.Show("Key is empty. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                 else
-                                    MessageBox.Show("Nie wybrano sposobu szyfrowania. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    MessageBox.Show("Cipher mode has not been selected. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             else
-                                MessageBox.Show("Ilość rund jest nieprawidłowa. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Number of rounds is incorrect. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         else
-                            MessageBox.Show("Ilość rund musi być liczbą. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Rounds value is not a number. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     else
-                        MessageBox.Show("Plik jest już zaszyfrowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("File is already encrypted. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 else
-                    MessageBox.Show("Nie wybrano zadnego pliku. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("No file has been selected. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else if (Operation == ActionType.Decryption)
             {
@@ -71,20 +71,20 @@ namespace WPFSerpent
                                         }
                                         else
                                         {
-                                            MessageBox.Show("To nie jest poprawny format klucza. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                            MessageBox.Show("This is not a correct Key format. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                         }
                                     else
-                                        MessageBox.Show("Klucz jest pusty. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        MessageBox.Show("Key is empty. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                 else
-                                    MessageBox.Show("Nie wybrano sposobu szyfrowania. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    MessageBox.Show("Cipher Mode has not been selected. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                             else
-                                MessageBox.Show("Ilość rund jest nieprawidłowa. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                                MessageBox.Show("Incorrect number of rounds. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         else
-                            MessageBox.Show("Ilość rund musi być liczbą. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show("Rounds value is not a number. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     else
-                        MessageBox.Show("Plik nie jest zaszyfrowany. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("File is not encrypted. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 else
-                    MessageBox.Show("Nie wybrano zadnego pliku. ", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("File has not been chosen. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else if (Operation == ActionType.ChangingText)
             {
@@ -114,7 +114,7 @@ namespace WPFSerpent
                                     }
                                     if (key == null)
                                     {
-                                        lblKeyValidation.Content = "To nie jest klucz w " + (keyMode == KeyMode.Bytes ? "bajtach oddzielonych przecinkiem" : "formacie UTF-8");
+                                        lblKeyValidation.Content = "This is not a correct key in " + (keyMode == KeyMode.Bytes ? "comma delimited bytes" : "UTF-8 format");
                                         lblKeyValidation.Foreground = red;
                                     }
                                     else
@@ -128,31 +128,31 @@ namespace WPFSerpent
                                 }
                                 else
                                 {
-                                    lblKeyValidation.Content = "Klucz jest pusty";
+                                    lblKeyValidation.Content = "Key is empty";
                                     lblKeyValidation.Foreground = red;
                                 }
                             }
                             else
                             {
-                                lblKeyValidation.Content = "Nie wybrano sposobu szyfrowania";
+                                lblKeyValidation.Content = "Cipher mode has not been chosen";
                                 lblKeyValidation.Foreground = red;
                             }
                         }
                         else
                         {
-                            lblKeyValidation.Content = "Niepoprawna liczba rund";
+                            lblKeyValidation.Content = "Incorrect number of rounds";
                             lblKeyValidation.Foreground = red;
                         }
                     }
                     else
                     {
-                        lblKeyValidation.Content = "Ilość rund nie jest liczbą";
+                        lblKeyValidation.Content = "Rounds value is not a number";
                         lblKeyValidation.Foreground = red;
                     }
                 }
                 else
                 {
-                    lblKeyValidation.Content = "Nie wybrano zadnego pliku";
+                    lblKeyValidation.Content = "No file has been selected";
                     lblKeyValidation.Foreground = red;
                 }
             }
@@ -188,7 +188,7 @@ namespace WPFSerpent
         {
             var txtSourceFile = (TextBox)FormToValidate.FindName("txtSourceFile");
             if (txtSourceFile == null) throw new NullReferenceException();
-            return !string.IsNullOrEmpty(txtSourceFile.Text) && txtSourceFile.Text != "Wybierz lub przeciągnij plik...";
+            return !string.IsNullOrEmpty(txtSourceFile.Text) && txtSourceFile.Text != "Select or drop a file...";
         }
 
         private static bool CheckIfFileIsNotEncryptedAlready(FrameworkElement FormToValidate)
@@ -274,7 +274,7 @@ namespace WPFSerpent
             var txtKey = (TextBox) FormToValidate.FindName("txtKey");
 
             return
-                string.IsNullOrEmpty(txtKey?.Text) || txtKey.Text == "klucz...";
+                string.IsNullOrEmpty(txtKey?.Text) || txtKey.Text == "key...";
         }
 
         public string GetKeyString(byte[] key, KeyMode keyMode)
@@ -304,7 +304,7 @@ namespace WPFSerpent
 
                 return sb.ToString();
             }
-            throw new Exception("Niepoprawny sposób wprowadzania klucza. ");
+            throw new Exception("Incorrect way of key input. ");
         }
 
         public bool CheckIfRoundsNumIsEmpty(Control FormToValidate)
@@ -312,18 +312,9 @@ namespace WPFSerpent
             var txtRounds = (TextBox) FormToValidate.FindName("txtRounds");
 
             return
-                string.IsNullOrEmpty(txtRounds?.Text) || txtRounds.Text == "rundy...";
+                string.IsNullOrEmpty(txtRounds?.Text) || txtRounds.Text == "rounds...";
         }
 
-        public string GetWordEnding(int n)
-        {
-            var strN = n.ToString();
-
-            if (strN.EndsWith("2") || strN.EndsWith("3") || strN.EndsWith("4"))
-                return "y";
-            if (strN == "1")
-                return string.Empty;
-            return "ów";
-        }
+        public string GetWordEnding(int n) => n > 1 ? "s" : "";
     }
 }

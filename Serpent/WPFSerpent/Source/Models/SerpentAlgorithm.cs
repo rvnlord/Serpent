@@ -1,4 +1,4 @@
-﻿namespace WPFSerpent
+﻿namespace WPFSerpent.Source.Models
 {
     public abstract class SerpentAlgorithm
     {

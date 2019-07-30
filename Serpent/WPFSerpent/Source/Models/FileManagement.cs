@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace WPFSerpent
+namespace WPFSerpent.Source.Models
 {
     public class FileManagement
     {
