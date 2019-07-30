@@ -2,7 +2,7 @@
 
 ### Download:
 
-[![Download](https://img.shields.io/badge/Dwonload-WPFSerpent---v1.48.exe-darkblue)](https://github.com/rvnlord/Serpent/releases/download/v1.48/WPFSerpent-v1.48.exe)
+[![Download](https://img.shields.io/badge/Download-WPFSerpent--v1.48.exe-darkblue)](https://github.com/rvnlord/Serpent/releases/download/v1.48/WPFSerpent-v1.48.exe)
 ![SHA256](https://img.shields.io/badge/SHA256-24B25A1C849A1DF5B09650E99588D53693A55C50B548B8FE3B1ABD949343CCA2-darkgreen.svg)
 
 ### Features:
