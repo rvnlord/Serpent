@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 
-namespace WPFSerpent.Source.Common.Extensions
+namespace WpfSerpent.Source.Common.Extensions
 {
     public static class FrameworkElementExtensions
     {

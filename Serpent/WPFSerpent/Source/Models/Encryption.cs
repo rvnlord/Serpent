@@ -6,57 +6,50 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 
-namespace WPFSerpent.Source.Models
+namespace WpfSerpent.Source.Models
 {
     public class SerpentCipher
     {
-        public int AlphabetLength { get; set; }
-        static readonly int BlockSize = 16; // bytes in a data-block
-        static readonly int DefaultKeySize = 32;
-        RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-
-        public SerpentCipher()
-        {
-            this.AlphabetLength = 256;
-        }
+        private const int BlockSize = 16; // bytes in a data-block
+        private const int DefaultKeySize = 32;
+        private static readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
 
         public bool Encrypt(string FilePath, byte[] Key, int Rounds, Mode Mode, EncryptionMode EncrMode)
         {
-            FileManagement fm = new FileManagement();
+            var fm = new FileManagement();
             SerpentAlgorithm sa;
-            byte[] saltBytes = new byte[BlockSize];
+            var saltBytes = new byte[BlockSize];
             rng.GetNonZeroBytes(saltBytes);
-            byte[] iv = new byte[BlockSize];
+            var iv = new byte[BlockSize];
             rng.GetBytes(iv);
 
-            if (Mode == Mode.Standard)
-                sa = new SerpentStandardMode();
-            else if (Mode == Mode.BitSlice)
-                sa = new SerpentBitSliceMode();
-            else          
+            switch (Mode)
             {
-                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
+                case Mode.Standard:
+                    sa = new SerpentStandardMode();
+                    break;
+                case Mode.BitSlice:
+                    sa = new SerpentBitSliceMode();
+                    break;
+                default:
+                    MessageBox.Show("Selected algorithm type is not implemented. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
             }
-
-            ErrorCode errorCode;
-            int m = AlphabetLength;
-            int position = 0;
-            List<byte> InputFileFragment;
-            string destFilePath = Path.ChangeExtension(FilePath, ".serpent");
-            FileInfo fi = new FileInfo(FilePath);
-            int fragmentSize = 1024 * 1024; // 1 MB (musi dać się wyciągnąć pierwiastek czwartego stopnia)
-            byte[] leadingBytes;
-            string tempFilePath = FilePath + ".temp";
-            string tempFilePath2 = FilePath + ".temp2";
+            
+            var position = 0;
+            var destFilePath = Path.ChangeExtension(FilePath, ".serpent");
+            var fi = new FileInfo(FilePath);
+            var fragmentSize = 1024 * 1024; // 1 MB (musi dać się wyciągnąć pierwiastek czwartego stopnia)
+            var tempFilePath = FilePath + ".temp";
+            var tempFilePath2 = FilePath + ".temp2";
             Encoding enc = new UTF8Encoding();
             sa.Rounds = Rounds;
             sa.BlockSize = BlockSize;
-            byte[] previousBlock = new byte[0];
+            var previousBlock = Array.Empty<byte>();
 
-            byte[] roundsBytes = enc.GetBytes(Rounds.ToString());
+            var roundsBytes = enc.GetBytes(Rounds.ToString());
 
-            for (int i = 0; i < roundsBytes.Length; i++)
+            for (var i = 0; i < roundsBytes.Length; i++)
             {
                 saltBytes[i] = roundsBytes[i];
 
@@ -64,22 +57,17 @@ namespace WPFSerpent.Source.Models
                     saltBytes[i + 1] = 3;
             }
 
-            byte[] ptFragment = new byte[BlockSize];
-            object expandedKey = sa.MakeKey(Key);
+            var expandedKey = sa.MakeKey(Key);
 
-            leadingBytes = new byte[BlockSize - (fi.Length % BlockSize)];
+            var leadingBytes = new byte[BlockSize - fi.Length % BlockSize];
+            rng.GetBytes(leadingBytes);
+            leadingBytes[0] = (byte)leadingBytes.Length;
 
-            for (int i = 0; i < leadingBytes.Length; i++)
-                if (i != 0)
-                    leadingBytes[i] = (byte)rnd.Next(0, AlphabetLength - 1);
-                else
-                    leadingBytes[i] = (byte)leadingBytes.Length;
-
-            fm.UnshiftBytesToFile(FilePath, tempFilePath, leadingBytes, out errorCode); // po czym dodaję go do pliku tymczasowego
+            fm.UnshiftBytesToFile(FilePath, tempFilePath, leadingBytes, out var errorCode); // po czym dodaję go do pliku tymczasowego
 
             if (errorCode == ErrorCode.ExpandFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File couldn't be modified.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -87,11 +75,11 @@ namespace WPFSerpent.Source.Models
             {
                 if (position == 0) // dodaj do pliku informację o rozszerzeniu, ilości rund i sumę kontrolną
                 {
-                    List<byte> infoBytes = new List<byte>();
+                    var infoBytes = new List<byte>();
 
                     infoBytes.AddRange(saltBytes);
 
-                    string extension = Path.GetExtension(FilePath);
+                    var extension = Path.GetExtension(FilePath);
                     extension = extension.Replace(".", "");
                     infoBytes.AddRange(enc.GetBytes(extension));
                     infoBytes.Add(3); // EOT byte
@@ -100,11 +88,11 @@ namespace WPFSerpent.Source.Models
 
                     if (BlockSize < infoBytes.Count - saltBytes.Length)
                     {
-                        MessageBox.Show("Rozszerzenie pliku jest zbyt długie.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("FIle extension is too long.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
 
-                    byte[] rndBytes = new byte[BlockSize - (infoBytes.Count - saltBytes.Length)];
+                    var rndBytes = new byte[BlockSize - (infoBytes.Count - saltBytes.Length)];
                     rng.GetNonZeroBytes(rndBytes);
                     infoBytes.AddRange(rndBytes);
 
@@ -112,7 +100,7 @@ namespace WPFSerpent.Source.Models
 
                     if (errorCode == ErrorCode.ExpandFileFailed)
                     {
-                        MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("File couldn't be modified.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
 
@@ -120,26 +108,26 @@ namespace WPFSerpent.Source.Models
 
                     if (errorCode == ErrorCode.DeletingTempFileFailed) // w razie błędu szyfrowanie nie powiodło się
                     {
-                        MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show("Temporary file couldn't be deleted.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return false;
                     }
 
                     File.Move(tempFilePath2, tempFilePath);
                 }
 
-                InputFileFragment = fm.GetFileFragment(tempFilePath, position, fragmentSize, out errorCode).ToList();
+                var InputFileFragment = fm.GetFileFragment(tempFilePath, position, fragmentSize, out errorCode).ToList();
 
                 if (errorCode == ErrorCode.GetFileFailed)
                 {
-                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("File couldn't be loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
-                List<byte> OutputFileFragment = new List<byte>();
+                var OutputFileFragment = new List<byte>();
 
                 // SZYFROWANIE BLOKU
 
-                for (int i = 0; i < InputFileFragment.Count; i += BlockSize)
+                for (var i = 0; i < InputFileFragment.Count; i += BlockSize)
                 {
                     if (EncrMode == EncryptionMode.ECB)
                     {
@@ -150,15 +138,15 @@ namespace WPFSerpent.Source.Models
                         if (position == 0 && i == 0) // inicjalizuję iv tylko raz
                             previousBlock = iv;
 
-                        byte[] plainText = InputFileFragment.GetRange(i, BlockSize).ToArray();
-                        byte[] currBlock = plainText.XOR(previousBlock); // do plaintextu xorujemy poprzedni zaszyfrowany blok
-                        byte[] cipherText = sa.BlockEncrypt(currBlock, 0, expandedKey);
+                        var plainText = InputFileFragment.GetRange(i, BlockSize).ToArray();
+                        var currBlock = plainText.XOR(previousBlock); // do plaintextu xorujemy poprzedni zaszyfrowany blok
+                        var cipherText = sa.BlockEncrypt(currBlock, 0, expandedKey);
                         OutputFileFragment.AddRange(cipherText);
                         previousBlock = cipherText;
                     }
                     else
                     {
-                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Selected ciphering type is not implemented. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         return false;
                     }
                 }
@@ -169,12 +157,12 @@ namespace WPFSerpent.Source.Models
 
                 if (errorCode == ErrorCode.SaveFileFailed) // w razie błędu szyfrowanie nie powiodło się
                 {
-                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("File couldn't be saved. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
                 position += fragmentSize; // ustaw pozycję kolejnego fragmentu
-                EncryptionProgressChangedEventArgs encryptionProgressChangedEventData = new EncryptionProgressChangedEventArgs(((int)((double)position / (double)fi.Length * 100.0)), ActionType.Encryption); // inicjalizuję dane dla event handlera (obliczony postęp, typ - szyfrowanie czy deszyfrowanie)
+                var encryptionProgressChangedEventData = new EncryptionProgressChangedEventArgs(((int)((double)position / fi.Length * 100.0)), ActionType.Encryption); // inicjalizuję dane dla event handlera (obliczony postęp, typ - szyfrowanie czy deszyfrowanie)
                 OnEncryptionProgressChanging(encryptionProgressChangedEventData); // wywołuję zdarzenie z utworzonymi wcześniej parametrami
 
             }
@@ -184,11 +172,11 @@ namespace WPFSerpent.Source.Models
 
             if (errorCode == ErrorCode.DeletingTempFileFailed) // w razie błędu szyfrowanie nie powiodło się
             {
-                MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Temporary file couldn't be deleted.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            byte[] ivAndSalt = new byte[iv.Length + saltBytes.Length];
+            var ivAndSalt = new byte[iv.Length + saltBytes.Length];
             iv.CopyTo(ivAndSalt, 0);
             saltBytes.CopyTo(ivAndSalt, iv.Length);
 
@@ -196,14 +184,14 @@ namespace WPFSerpent.Source.Models
 
             if (errorCode == ErrorCode.ExpandFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostać zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File couldn't be modified.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             fm.DeleteTempFile(destFilePath, out errorCode); // usuń plik tymczasowy
 
             if (errorCode == ErrorCode.DeletingTempFileFailed) // w razie błędu szyfrowanie nie powiodło się
-                MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Temporary file couldn't be deleted.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
 
             File.Move(tempFilePath, destFilePath);
 
@@ -212,46 +200,45 @@ namespace WPFSerpent.Source.Models
 
         public bool Decrypt(string FilePath, byte[] Key, int Rounds, Mode Mode, EncryptionMode EncrMode)
         {
-            FileManagement fm = new FileManagement();
+            var fm = new FileManagement();
             SerpentAlgorithm sa;
 
-            if (Mode == Mode.Standard)
-                sa = new SerpentStandardMode();
-            else if (Mode == Mode.BitSlice)
-                sa = new SerpentBitSliceMode();
-            else
+            switch (Mode)
             {
-                MessageBox.Show("Wybrany tryb algorytmu nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
+                case Mode.Standard:
+                    sa = new SerpentStandardMode();
+                    break;
+                case Mode.BitSlice:
+                    sa = new SerpentBitSliceMode();
+                    break;
+                default:
+                    MessageBox.Show("Selected algorithm type is not implemented. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
             }
 
-            ErrorCode errorCode;
-            int m = AlphabetLength;
-            int position = 0;
-            string outputExtension;
-            List<byte> InputFileFragment;
-            string destFilePath = string.Empty;
-            FileInfo fi = new FileInfo(FilePath);
-            int fragmentSize = 1024 * 1024; // 1 MB (musi dać się wyciągnąć pierwiastek czwartego stopnia)
+            var position = 0;
+            var destFilePath = string.Empty;
+            var fi = new FileInfo(FilePath);
+            const int fragmentSize = 1024 * 1024; // 1 MB (musi dać się wyciągnąć pierwiastek czwartego stopnia)
             Encoding enc = new UTF8Encoding();
             sa.Rounds = Rounds;
             sa.BlockSize = BlockSize;
-            string tempFilePath = FilePath + ".temp";
+            var tempFilePath = FilePath + ".temp";
 
-            byte[] iv = fm.GetFileFragment(FilePath, 0, BlockSize, out errorCode);
-            byte[] plainControlSum = fm.GetFileFragment(FilePath, BlockSize, BlockSize, out errorCode);
-            byte[] roundBytesFromPtControlSum = new byte[0];
-            byte[] previousBlock = new byte[0];
+            var iv = fm.GetFileFragment(FilePath, 0, BlockSize, out var errorCodeIv);
+            var plainControlSum = fm.GetFileFragment(FilePath, BlockSize, BlockSize, out var errorCode);
+            var roundBytesFromPtControlSum = Array.Empty<byte>();
+            var previousBlock = Array.Empty<byte>();
 
-            if (errorCode == ErrorCode.GetFileFailed)
+            if (errorCodeIv == ErrorCode.GetFileFailed || errorCode == ErrorCode.GetFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File couldn't be loaded.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
-            List<byte> listRoundsBytesFromPtControlSum = new List<byte>();
+            var listRoundsBytesFromPtControlSum = new List<byte>();
 
-            for (int i = 0; i < BlockSize; i++)
+            for (var i = 0; i < BlockSize; i++)
             {
                 if (plainControlSum[i] != 3)
                     listRoundsBytesFromPtControlSum.Add(plainControlSum[i]);
@@ -261,30 +248,25 @@ namespace WPFSerpent.Source.Models
                     break;
                 }
             }
-
-            int readRoundsFromPtControlSum = 0;
-            string strRoundsFromPtControlSum = enc.GetString(roundBytesFromPtControlSum);
-            bool areRoundsFromPtControlSumParsable = int.TryParse(enc.GetString(roundBytesFromPtControlSum), out readRoundsFromPtControlSum);
+            
+            var areRoundsFromPtControlSumParsable = int.TryParse(enc.GetString(roundBytesFromPtControlSum), out var readRoundsFromPtControlSum);
 
             if (!areRoundsFromPtControlSumParsable || readRoundsFromPtControlSum > 64)
             {
-                MessageBox.Show("Plik nie jest zaszyfrowany lub jest zaszyfrowany innym algorytmem.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File isn't encrypted or it was encrypted with different algorithm.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
-            else if (readRoundsFromPtControlSum != Rounds)
+
+            if (readRoundsFromPtControlSum != Rounds)
             {
                 if (Mode != Mode.Standard)
                 {
-                    MessageBoxResult result = MessageBox.Show(string.Format("Plik został zaszyfrowany inną liczbą rund ({0}) algorytmu Serpent niż podana ({1}), ale w trybie innym niż Standardowy nie można odszyfrować przy użyciu takiej liczby rund. Czy chcesz zmienić tryb na Standardowy i liczbę rund na {0}? (UWAGA: Operacja deszyfrowania może trwać bardzo długo dla dużych plików). ", readRoundsFromPtControlSum, Rounds), "Ostrzeżenie", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    
-                    if (result == MessageBoxResult.Yes)
-                        return Decrypt(FilePath, Key, readRoundsFromPtControlSum, Mode.Standard, EncrMode);
-                    else
-                        return false;
+                    var result = MessageBox.Show(string.Format("File was encrypted with different number of rounds ({0}) of Serpent algorithm than the one specified ({1}) and in algorithm type different than `Standard` it is impossible to decrypt by using this number of rounds. Do you want to change alogorithm type to 'Standard' and number of rounds to {0}? (WARNING: Decryption may take a long time for big files). ", readRoundsFromPtControlSum, Rounds), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    return result == MessageBoxResult.Yes && Decrypt(FilePath, Key, readRoundsFromPtControlSum, Mode.Standard, EncrMode);
                 }
                 else
                 {
-                    MessageBoxResult result = MessageBox.Show(string.Format("Wygląda na to, że plik został zaszyfrowany inną liczbą rund ({0}) algorytmu Serpent niż podana ({1}) lub plik w ogóle nie jest zaszyfrowany. Czy chcesz zmienić liczbę rund na {0}?", readRoundsFromPtControlSum, Rounds), "Ostrzeżenie", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    var result = MessageBox.Show(string.Format("It looks like the file was encrypted with different number of rounds ({0}) of Serpent algorithm than the one specified ({1}) or file is not encrypted at all. Do you want to change the number of rounds to {0}?", readRoundsFromPtControlSum, Rounds), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                     if (result == MessageBoxResult.Yes)
                     {
@@ -293,52 +275,52 @@ namespace WPFSerpent.Source.Models
                     }
                 }
             }
-
-            byte[] ptFragment = new byte[BlockSize];
-            object expandedKey = sa.MakeKey(Key);
+            
+            var expandedKey = sa.MakeKey(Key);
 
             fm.ShiftBytesFromFile(FilePath, tempFilePath, BlockSize * 2, out errorCode); // usuń z pliku dwa bloki - sumę kontrolną i initalization vector
 
             if (errorCode == ErrorCode.ShiftFileFailed)
             {
-                MessageBox.Show("Plik nie mógł zostac zmodyfikowany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("File couldn't be modified.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
             do
             {
-                InputFileFragment = fm.GetFileFragment(tempFilePath, position, fragmentSize, out errorCode).ToList();
+                var InputFileFragment = fm.GetFileFragment(tempFilePath, position, fragmentSize, out errorCode).ToList();
 
                 if (errorCode == ErrorCode.GetFileFailed)
                 {
-                    MessageBox.Show("Plik nie mógł zostac wczytany.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("File couldn't be loaded'.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
-                List<byte> OutputFileFragment = new List<byte>();
+                var OutputFileFragment = new List<byte>();
 
                 // DESZYFROWANIE BLOKU
 
-                for (int i = 0; i < InputFileFragment.Count; i += BlockSize)
+                for (var i = 0; i < InputFileFragment.Count; i += BlockSize)
                 {
-                    if (EncrMode == EncryptionMode.ECB)
+                    switch (EncrMode)
                     {
-                        OutputFileFragment.AddRange(sa.BlockDecrypt(InputFileFragment.GetRange(i, BlockSize).ToArray(), 0, expandedKey));
-                    }
-                    else if (EncrMode == EncryptionMode.CBC)
-                    {
-                        if (position == 0 && i == 0)
-                            previousBlock = iv;
-                        byte[] cipherText = InputFileFragment.GetRange(i, BlockSize).ToArray();
-                        byte[] currBlock = sa.BlockDecrypt(cipherText, 0, expandedKey);
-                        byte[] plainText = currBlock.XOR(previousBlock);
-                        OutputFileFragment.AddRange(plainText);
-                        previousBlock = cipherText;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Wybrany tryb szyfrowania nie jest zaimplementowany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return false;
+                        case EncryptionMode.ECB:
+                            OutputFileFragment.AddRange(sa.BlockDecrypt(InputFileFragment.GetRange(i, BlockSize).ToArray(), 0, expandedKey));
+                            break;
+                        case EncryptionMode.CBC:
+                        {
+                            if (position == 0 && i == 0)
+                                previousBlock = iv;
+                            var cipherText = InputFileFragment.GetRange(i, BlockSize).ToArray();
+                            var currBlock = sa.BlockDecrypt(cipherText, 0, expandedKey);
+                            var plainText = currBlock.XOR(previousBlock);
+                            OutputFileFragment.AddRange(plainText);
+                            previousBlock = cipherText;
+                            break;
+                        }
+                        default:
+                            MessageBox.Show("Selected ciphering type is not implemented. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return false;
                     }
                 }
 
@@ -347,15 +329,15 @@ namespace WPFSerpent.Source.Models
                 if (position == 0) // jeśli odszyfrowałem pierwszy fragment pliku, przed zapisaniem usuwam z tablicy bajty dodane przy szyfrowaniu
                 {
                     int shiftedbytes = OutputFileFragment[BlockSize * 2]; // zawartość 32 bajtu, 0 - 15 deszyfrowana suma kontrolna, 16-31 rozszerzenie i ilość rund
-                    byte[] decryptedControlSum = new byte[BlockSize];
-                    byte[] extBytes = new byte[1];
-                    byte[] roundBytes = new byte[1];
-                    int i = 0;
+                    var decryptedControlSum = new byte[BlockSize];
+                    var extBytes = new byte[1];
+                    var roundBytes = new byte[1];
+                    var i = 0;
 
                     for (; i < BlockSize; i++) // zczytaj sumę kontrolną
                         decryptedControlSum[i] = OutputFileFragment[i];
 
-                    List<byte> listExtbytes = new List<byte>();
+                    var listExtbytes = new List<byte>();
 
                     for (; i < BlockSize * 2; i++) // zczytaj rozszerzenie
                     {
@@ -369,7 +351,7 @@ namespace WPFSerpent.Source.Models
                     }
 
                     i++;
-                    List<byte> listRoundsBytes = new List<byte>();
+                    var listRoundsBytes = new List<byte>();
 
                     for (; i < BlockSize * 2; i++)  // zczytaj zaszyfrowaną ilość rund
                     {
@@ -382,23 +364,22 @@ namespace WPFSerpent.Source.Models
                         }
                     }
 
-                    outputExtension = enc.GetString(extBytes);
+                    var outputExtension = enc.GetString(extBytes);
                     destFilePath = Path.ChangeExtension(FilePath, outputExtension);
-                    int readRounds;
-                    bool areRoundsParsable = int.TryParse(enc.GetString(roundBytes), out readRounds);
+                    var areRoundsParsable = int.TryParse(enc.GetString(roundBytes), out var readRounds);
 
                     if (!plainControlSum.SequenceEqual(decryptedControlSum) || !areRoundsParsable || shiftedbytes > 16 || readRounds != Rounds)
                     {
                         fm.DeleteTempFile(tempFilePath, out errorCode);
                         if (errorCode == ErrorCode.DeletingTempFileFailed)
-                            MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageBox.Show("Temporary file couldn't be deleted", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                        MessageBox.Show("Klucz jest nieprawidłowy. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Key is invalid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                         return false;
                     }
 
-                    int shiftedBytesAndInfoBytes = shiftedbytes + BlockSize * 2;
+                    var shiftedBytesAndInfoBytes = shiftedbytes + BlockSize * 2;
 
                     for (; shiftedBytesAndInfoBytes > 0; shiftedBytesAndInfoBytes--)
                         OutputFileFragment.RemoveAt(0);
@@ -408,12 +389,12 @@ namespace WPFSerpent.Source.Models
 
                 if (errorCode == ErrorCode.SaveFileFailed) // w razie błędu szyfrowanie nie powiodło się
                 {
-                    MessageBox.Show("Plik nie mógł zostac zapisany. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("FIle couldn't be saved. ", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
 
                 position += fragmentSize; // ustaw pozycję kolejnego fragmentu
-                EncryptionProgressChangedEventArgs encryptionProgressChangedEventData = new EncryptionProgressChangedEventArgs(((int)((double)position / (double)fi.Length * 100.0)), ActionType.Decryption); // inicjalizuję dane dla event handlera (obliczony postęp, typ - szyfrowanie czy deszyfrowanie)
+                var encryptionProgressChangedEventData = new EncryptionProgressChangedEventArgs((int)((double)position / fi.Length * 100.0), ActionType.Decryption); // inicjalizuję dane dla event handlera (obliczony postęp, typ - szyfrowanie czy deszyfrowanie)
                 OnEncryptionProgressChanging(encryptionProgressChangedEventData); // wywołuję zdarzenie z utworzonymi wcześniej parametrami
 
             }
@@ -422,18 +403,17 @@ namespace WPFSerpent.Source.Models
             fm.DeleteTempFile(tempFilePath, out errorCode); // usuń plik tymczasowy
 
             if (errorCode == ErrorCode.DeletingTempFileFailed)
-                MessageBox.Show("Plik tymczasowy nie mógł zostać usunięty.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Temporary file couldn't be deleted.", "Ostrzeżenie", MessageBoxButton.OK, MessageBoxImage.Warning);
 
             return true;
         }
 
-        public Random rnd = new Random();
+       
 
-        public byte[] RandomizeKey() // Losowanie kluczy
+        public static byte[] RandomizeKey() // Losowanie kluczy
         {
-            byte[] key = new byte[DefaultKeySize];
+            var key = new byte[DefaultKeySize];
             rng.GetNonZeroBytes(key);
-
             return key;
         }
 
@@ -441,10 +421,7 @@ namespace WPFSerpent.Source.Models
 
         protected virtual void OnEncryptionProgressChanging(EncryptionProgressChangedEventArgs e) // metoda upewniająca się, że parametry przyjmowane przez zdarzenie nie są puste
         {
-            if (EncryptionProgressChanged != null)
-            {
-                EncryptionProgressChanged(this, e);
-            }
+            EncryptionProgressChanged?.Invoke(this, e);
         }
     }
 
@@ -475,39 +452,23 @@ namespace WPFSerpent.Source.Models
 
     public class EncryptionProgressChangedEventArgs : EventArgs // klasa danych dla zdarzenia wywoływanego pprzy zmianie statusu szyfrowania bądź deszyfrowania
     {
-        private int _progress; // deklaruję pola
-        private ActionType _actionType;
-
-        public int Progress // deklaruję właściwości jednokierunkowe
-        {
-            get
-            {
-                return this._progress;
-            }
-        }
-
-        public ActionType ActionType
-        {
-            get
-            {
-                return this._actionType;
-            }
-        }
+        public int Progress { get; } // deklaruję właściwości jednokierunkowe
+        public ActionType ActionType { get; }
 
         public EncryptionProgressChangedEventArgs(int progress, ActionType actionType) // konstruktor
         {
-            this._progress = progress;
-            this._actionType = actionType;
+            Progress = progress;
+            ActionType = actionType;
         }
     }
 
     public delegate void EncryptionProgressChangedEventHandler(object sender, EncryptionProgressChangedEventArgs e); // deklaruję delegat zarządzający zdarzeniem wywoływanym przy zmianie stanu operacji szyfrowania lub deszyfrowania
 
-    public static partial class ExtensionMethods
+    public static class ExtensionMethods
     {
         public static byte[] XOR(this byte[] buffer1, byte[] buffer2)
         {
-            for (int i = 0; i < buffer1.Length; i++)
+            for (var i = 0; i < buffer1.Length; i++)
                 buffer1[i] ^= buffer2[i];
 
             return buffer1;

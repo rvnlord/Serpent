@@ -8,12 +8,11 @@ using System.Windows.Media;
 // Ogólne informacje o zestawie są kontrolowane poprzez następujący 
 // zbiór atrybutów. Zmień wartości tych atrybutów by zmodyfikować informacje
 // powiązane z zestawem.
-[assembly: AssemblyTitle("WpfApplication1")]
+[assembly: AssemblyTitle("WpfSerpent")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Acer")]
-[assembly: AssemblyProduct("WpfApplication1")]
-[assembly: AssemblyCopyright("Copyright © Acer 2015")]
+[assembly: AssemblyCompany("Anon")]
+[assembly: AssemblyProduct("WpfSerpent")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: DisableDpiAwareness]

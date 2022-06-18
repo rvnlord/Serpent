@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WPFSerpent.Source.Models
+namespace WpfSerpent.Source.Models
 {
     public class SerpentStandardMode : SerpentAlgorithm
     {

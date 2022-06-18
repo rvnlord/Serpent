@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WPFSerpent.Source.Common.Extensions.Collections
+namespace WpfSerpent.Source.Common.Extensions.Collections
 {
     public static class StackExtensions
     {

@@ -24,7 +24,7 @@
 
     <Style x:Key="MyCleanWindowStyle" 
            TargetType="{x:Type mah:MetroWindow}" 
-           BasedOn="{StaticResource CleanWindowStyleKey}">
+           BasedOn="{StaticResource MahApps.Styles.MetroWindow.Clean}">
         <Setter Property="TitleCharacterCasing" Value="Normal"/>
         <Setter Property="IconEdgeMode" Value="Aliased"/>
         <Setter Property="TitleAlignment" Value="-10,0,0,0"/>
@@ -55,7 +55,7 @@
         <GradientStop Color="Black" Offset="1.0" />
     </LinearGradientBrush>
 
-    <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+    <Style BasedOn="{StaticResource MahApps.Styles.DataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
         <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
         <Setter Property="Background" Value="{StaticResource HeaderRowBrush}" />
         <Setter Property="FontWeight" Value="Bold" />
@@ -77,17 +77,17 @@
                 <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
             </MultiTrigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="{StaticResource WhiteBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.ThemeBackground}" />
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="MyRowStyle" BasedOn="{StaticResource MetroDataGridRow}" TargetType="{x:Type DataGridRow}">
+    <Style x:Key="MyRowStyle" BasedOn="{StaticResource MahApps.Styles.DataGridRow}" TargetType="{x:Type DataGridRow}">
         <Style.Triggers>
             <!--  IsSelected  -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="mah:DataGridHelper.SelectionUnit" Value="FullRow" />
                     <Condition Property="IsSelected" Value="True" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{StaticResource RowSelectedBrush}" />
@@ -98,7 +98,7 @@
             <!--  IsSelected and Selector.IsSelectionActive (Inactive Selection) -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="mah:DataGridHelper.SelectionUnit" Value="FullRow" />
                     <Condition Property="IsSelected" Value="True" />
                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
@@ -110,7 +110,7 @@
             <!--  IsMouseOver  -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="mah:DataGridHelper.SelectionUnit" Value="FullRow" />
                     <Condition Property="IsMouseOver" Value="True" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{StaticResource RowMouseOverBrush}" />
@@ -120,7 +120,7 @@
             <!--  IsEnabled  -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="mah:DataGridHelper.SelectionUnit" Value="FullRow" />
                     <Condition Property="IsEnabled" Value="False" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
@@ -129,7 +129,7 @@
             <!--  IsEnabled and IsSelected (Disabled Highlight)  -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="mah:DataGridRowHelper.SelectionUnit" Value="FullRow" />
+                    <Condition Property="mah:DataGridHelper.SelectionUnit" Value="FullRow" />
                     <Condition Property="IsEnabled" Value="False" />
                     <Condition Property="IsSelected" Value="True" />
                 </MultiTrigger.Conditions>
@@ -141,7 +141,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style BasedOn="{StaticResource MetroDataGrid}" TargetType="{x:Type DataGrid}">
+    <Style BasedOn="{StaticResource MahApps.Styles.DataGrid}" TargetType="{x:Type DataGrid}">
         <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal"/>
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="RowHeight" Value="25" />
@@ -430,19 +430,19 @@
         <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <Style x:Key="MyMahButtonStyle" BasedOn="{StaticResource SquareButtonStyle}" TargetType="{x:Type ButtonBase}">
+    <Style x:Key="MyMahButtonStyle" BasedOn="{StaticResource MahApps.Styles.Button.Square}" TargetType="{x:Type ButtonBase}">
         <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <Style x:Key="MyMahAccentedButtonStyle" BasedOn="{StaticResource AccentedSquareButtonStyle}" TargetType="{x:Type ButtonBase}">
+    <Style x:Key="MyMahAccentedButtonStyle" BasedOn="{StaticResource MahApps.Styles.Button.Square.Accent}" TargetType="{x:Type ButtonBase}">
         <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <Style x:Key="MyClearButtonStyle" BasedOn="{StaticResource ChromelessButtonStyle}" TargetType="{x:Type Button}">
+    <Style x:Key="MyClearButtonStyle" BasedOn="{StaticResource MahApps.Styles.Button.Chromeless}" TargetType="{x:Type Button}">
         <Setter Property="mah:ControlsHelper.ContentCharacterCasing" Value="Normal" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="FontSize" Value="14" />

@@ -7,7 +7,7 @@ using System.Windows.Interop;
 using Point = System.Windows.Point;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace WPFSerpent.Source.Common.Utils.UtilsClasses
+namespace WpfSerpent.Source.Common.Utils.UtilsClasses
 {
     public class WPFScreen
     {

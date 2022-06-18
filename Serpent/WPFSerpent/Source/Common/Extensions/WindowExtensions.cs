@@ -1,7 +1,7 @@
 ﻿using System.Windows;
-using WPFSerpent.Source.Common.Utils.UtilsClasses;
+using WpfSerpent.Source.Common.Utils.UtilsClasses;
 
-namespace WPFSerpent.Source.Common.Extensions
+namespace WpfSerpent.Source.Common.Extensions
 {
     public static class WindowExtensions
     {

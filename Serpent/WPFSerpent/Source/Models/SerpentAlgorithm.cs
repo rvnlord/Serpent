@@ -1,4 +1,4 @@
-﻿namespace WPFSerpent.Source.Models
+﻿namespace WpfSerpent.Source.Models
 {
     public abstract class SerpentAlgorithm
     {
@@ -7,9 +7,9 @@
         public abstract int Rounds { get; set; }
 
         #region S-Boxes and Transformation
-        
+
         protected static byte[][] Sbox = {
-	        new byte[] { 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 },/* S0: */
+            new byte[] { 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 },/* S0: */
 	        new byte[] {15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 },/* S1: */
 	        new byte[] { 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 },/* S2: */
 	        new byte[] { 0,15,11, 8,12, 9, 6, 3,13, 1, 2, 4,10, 7, 5,14 },/* S3: */
@@ -44,7 +44,7 @@
         };
 
         protected static byte[][] SboxInverse = {
-	        new byte[] {13, 3,11, 0,10, 6, 5,12, 1,14, 4, 7,15, 9, 8, 2 },/* InvS0: */
+            new byte[] {13, 3,11, 0,10, 6, 5,12, 1,14, 4, 7,15, 9, 8, 2 },/* InvS0: */
 	        new byte[] { 5, 8, 2,14,15, 6,12, 3,11, 4, 7, 9, 1,13,10, 0 },/* InvS1: */
 	        new byte[] {12, 9,15, 4,11,14, 1, 2, 0, 3, 6,13, 5, 8,10, 7 },/* InvS2: */
 	        new byte[] { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 },/* InvS3: */
@@ -101,7 +101,7 @@
         };
 
         protected static byte xFF = (byte)0xFF;
-        
+
         protected static byte[][] LTtable = {
             new byte[] {16,  52,  56,  70,  83,  94, 105, xFF},
             new byte[] {72, 114, 125, xFF, xFF, xFF, xFF, xFF},
@@ -364,7 +364,7 @@
             new byte[] {  4,  27,  86,  97, 113, 115, 127, xFF}
         };
 
-        protected static char[] HEX_DIGITS = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+        protected static char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
         #endregion
 

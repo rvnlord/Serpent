@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
-namespace WPFSerpent.Source.Common.Extensions
+namespace WpfSerpent.Source.Common.Extensions
 {
     public static class ButtonExtensions
     {

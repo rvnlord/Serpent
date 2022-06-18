@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace WPFSerpent.Source.Models
+namespace WpfSerpent.Source.Models
 {
     public class Validation
     {

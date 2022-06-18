@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace WPFSerpent.Source.Common.Extensions.Collections
+namespace WpfSerpent.Source.Common.Extensions.Collections
 {
     public static class IListExtensions
     {
